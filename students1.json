@@ -1,0 +1,43 @@
+{
+  "Dina": {
+    "last name": "Kakiashvili",
+    "mail": "Dina.kakiashvili@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://moodle22.braude.ac.il/"
+  },
+
+  "Natalie": {
+    "last name": "Nanikashvily",
+    "mail": "Natalie.nanikashvily@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://w3.braude.ac.il/new-student/flyer2022/online/station/"
+  },
+
+  "Dima": {
+    "last name": "Chudnovsky",
+    "mail": "dima.chudnovsky@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://il.shein.com/"
+  },
+
+  "David": {
+    "last name": "Asulin",
+    "mail": "david.asulin@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://www.asos.com/"
+  },
+
+  "Or": {
+    "last name": "Binyamin",
+    "mail": "or.binyamin@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://www.castro.com/"
+  },
+
+  "Bar": {
+    "last name": "Malka",
+    "mail": "bar.malka@e.braude.ac.il",
+    "Courses": ["Physics", "Cloud", "Web"],
+    "link": "https://www.pullandbear.com/il/"
+  }
+}
