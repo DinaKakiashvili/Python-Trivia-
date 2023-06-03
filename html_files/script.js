@@ -806,7 +806,7 @@ function handlePlayView(event) {
     isChangingQuestion = true;
     const buttonIndex = event.target.getAttribute("data-index").toString();
     // Add the user's answer to the list
-    userAnswersList.append();
+    // userAnswersList.append();
     trackProgress(
       buttonIndex == Number(correctAnswersList[currentIndex]) + "",
       buttonIndex
