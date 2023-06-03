@@ -1,5 +1,5 @@
 const NUMBER_OF_QUESTIONS = 7;
-const bodyDiv = document.getElementById('body');
+const bodyDiv = document.getElementById("body");
 let answersList = [];
 let questionsList = [];
 let codesList = [];
@@ -672,16 +672,15 @@ function handlePlayView(event) {
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
     ) {
-      console.log(userAnswersList);
       var buttonIndex = userAnswersList[currentIndex];
+      console.log(userAnswersList)
       var questionId = questionIdList[currentIndex];
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
-        answerButtons.forEach(function (button, index) {
+        answerButtons.forEach(function (button,index) {
           button.disabled = true;
           if (index === buttonIndex) {
-            button.style.backgroundColor =
-              getComputedStyle(currentProgressNode).backgroundColor;
+            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
           }
         });
       } else {
