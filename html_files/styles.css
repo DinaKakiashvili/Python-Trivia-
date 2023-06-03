@@ -1,0 +1,353 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+button {
+  cursor: pointer;
+}
+
+h1 {
+  color: #e5beec;
+  text-size: 2em;
+  font-weight: 100;
+}
+div#main {
+  background-color: #e8e2e2;
+  width: 1250px;
+  height: 550px;
+  border: none;
+  border-radius: 5px;
+  padding: 20px;
+  display: flex;
+  column-gap: 20px;
+}
+div#side-bar {
+  text-align: center;
+  background-color: #5d3891;
+  border: none;
+  border-radius: 5px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+button.sidebar-btn {
+  background-color: transparent;
+  border: none;
+  outline: 4px solid #533281;
+  border-radius: 5px;
+  color: white;
+  padding: 10px;
+  margin: 20px;
+}
+button.sidebar-btn:disabled {
+  background-color: #533281;
+  cursor: default;
+}
+
+div#body {
+  background-color: #5d3891;
+  padding: 20px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+}
+div.grid-question-box {
+  grid-area: question-box;
+}
+div.grid-code-box {
+  grid-area: code-box;
+}
+div.grid-answers-box {
+  grid-area: answers-box;
+}
+div.grid-progress-box {
+  grid-area: progress-box;
+}
+div.grid-container {
+  grid-template-rows: 20% 60% 20%;
+  grid-template-columns: 33% 33% 33%;
+  display: grid;
+  grid-template-areas:
+    "question-box question-box question-box"
+    "code-box answers-box answers-box"
+    "progress-box progress-box progress-box";
+  gap: 20px;
+  height: 100%;
+}
+div#question-box {
+  padding: 10px;
+  text-align: left;
+  background-color: #533281;
+  border: none;
+  border-radius: 5px;
+  margin-right: 30px;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  height: 100%;
+  margin-bottom: 20px;
+}
+
+div#question-btn-menu {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+div#question-btn-menu > button {
+  height: 100%;
+  background-color: #533281;
+  border: 4px solid #5d3891;
+  outline: none;
+  border-radius: 5px;
+  color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-left: 10px;
+}
+
+div#code-box {
+  text-align: left;
+  background-color: #533281;
+  border: none;
+  border-radius: 5px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+div#code-box > textarea {
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 7px;
+  background-color: #000;
+  color: #fff;
+  resize: none;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.1em;
+}
+div#answers-box {
+  padding: 10px;
+  text-align: left;
+  background-color: #533281;
+  border: none;
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  margin-right: 30px;
+  margin-top: 20px;
+}
+div#answers-box > button {
+  padding: 20px;
+  margin: 10px;
+  background-color: #f99417;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.5em;
+  color: #fff;
+  font-weight: bold;
+  white-space: normal;
+}
+div#progress-box {
+  padding: 20px;
+  text-align: left;
+  background-color: #533281;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  margin-right: 30px;
+  display: flex;
+  flex-direction: row;
+  height: fit-content;
+}
+span#question-text {
+  font-size: 1.3em;
+  font-weight: 100;
+}
+
+[class^="prog-node-"] {
+  width: 25px;
+  height: 25px;
+  border: none;
+  border-radius: 5px;
+  background-color: white;
+  margin-right: 20px;
+  padding: 10px;
+}
+
+.end-game {
+  margin: 0 auto;
+  font-size: 3em;
+}
+.form-container {
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.left-column {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.right-column {
+  flex: 1;
+  padding-left: 20px;
+  width: 100%;
+  background-color: #533281;
+  padding: 20px;
+}
+
+.bottom-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-container input[type="text"],
+.form-container textarea,
+.form-container select {
+  width: 80%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-container .radio-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.submit-button {
+  width: 20%;
+  height: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 15px;
+  background-color: #4caf50;
+  color: #000000;
+  text-align: center;
+  cursor: pointer;
+}
+
+.form-container .start-btn {
+  height: 100%;
+  padding: 20px;
+  border: none;
+  border-radius: 15px;
+  background-color: #4caf50;
+  color: #000000;
+  text-align: center;
+  cursor: pointer;
+}
+
+.form-container .submit-button:hover {
+  background-color: #45a049;
+}
+
+.form-container .columns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.temp {
+  display: flex;
+}
+
+.game-config {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+
+  align-items: left;
+  height: fit-content;
+  background-color: #533281;
+  border-radius: 10px;
+  width: 100%;
+}
+select#choose-difficulty {
+  border: 4px solid #5d3891;
+  border-radius: 5px;
+  background-color: transparent;
+  width: 200px;
+  height: 45px;
+  color: white;
+  margin-bottom: 10px;
+}
+
+select#choose-difficulty > option {
+  background-color: #5d3891;
+}
+
+.start-btn {
+  background-color: #5d3891;
+  border: none;
+  border-radius: 5px;
+  height: 45px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#error-msg-box {
+  font-size: 11px;
+  font-weight: 100;
+}
+.game-description {
+  font-size: 13px;
+  font-weight: 100;
+  height: fit-content;
+  line-height: 1.5;
+  color: #ffff;
+  text-align: left;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #533281;
+}
+
+.headline {
+  margin-bottom: 20px;
+  color: purple;
+}
+
+.element {
+  background-color: #533281;
+  color: white;
+  width: stretch;
+  margin-right: 30px;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#home-stats {
+  height: 250px;
+}
+#home-leader {
+  height: 250px;
+}
+
+.questionAdd-config {
+  padding: 20px;
+  flex-direction: column;
+
+  align-items: left;
+  height: fit-content;
+  background-color: #533281;
+  border-radius: 5px;
+  width: 50%;
+}
