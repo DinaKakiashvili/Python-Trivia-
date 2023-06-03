@@ -666,24 +666,30 @@ function handlePlayView(event) {
 
     answerButtons.forEach(function (button) {
       button.disabled = false;
-      button.style.backgroundColor = "#5282b2";
     });
-    console.log(getComputedStyle(currentProgressNode).backgroundColor != "rgb(255, 255, 255)")
+
     if (
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
     ) {
-
       var buttonIndex = userAnswersList[currentIndex];
       var questionId = questionIdList[currentIndex];
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
         answerButtons.forEach(function (button,index) {
-          console.log(button.style.backgroundColor)
           button.disabled = true;
           if (index.toString() === buttonIndex.toString()) {
+            console.log("Semek")
             button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
           }
+          else {
+            button.style.backgroundColor = "#5282b2";
+          }
+        });
+      } else {
+        // Unanswered question
+        answerButtons.forEach(function (button) {
+          button.disabled = false;
         });
       }
     }
