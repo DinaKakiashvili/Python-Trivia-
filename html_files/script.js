@@ -679,7 +679,8 @@ function handlePlayView(event) {
         console.log("blocking")
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
-          if (index === buttonIndex) {
+          console.log(index.toString() === buttonIndex.toString())
+          if (index.toString() === buttonIndex.toString()) {
             console.log("here painting  red")
             button.style.backgroundColor = "red";
           }
