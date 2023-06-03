@@ -679,7 +679,8 @@ function handlePlayView(event) {
         // User already answered this question
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
-          console.log(index,buttonIndex)
+          console.log(index)
+          console.log(buttonIndex)
           if (index === buttonIndex) {
             button.style.backgroundColor = "red";
           }
