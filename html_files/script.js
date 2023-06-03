@@ -5,7 +5,7 @@ let questionsList = [];
 let codesList = [];
 let correctAnswersList = [];
 let questionIdList = [];
-let userList = JSON.parse('%s');
+let userList = JSON.parse("%s");
 
 let currentUser = null;
 let currentIndex = 0;
@@ -582,7 +582,7 @@ function checkChooseDifficulty(event) {
 }
 
 function handlePlayView(event) {
-  let userAnswersList = [];
+  let userAnswersList = {};
   currentIndex = 0;
   // Handle menu button click
   handleMenuButtonClick(event);
@@ -672,11 +672,15 @@ function handlePlayView(event) {
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
     ) {
+      var buttonIndex = userAnswersList[currentIndex];
       var questionId = questionIdList[currentIndex];
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
-        answerButtons.forEach(function (button) {
+        answerButtons.forEach(function (button,index) {
           button.disabled = true;
+          if (index === buttonIndex) {
+            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
+          }
         });
       } else {
         // Unanswered question
@@ -805,8 +809,8 @@ function handlePlayView(event) {
   function handleAnswerClick(event) {
     isChangingQuestion = true;
     const buttonIndex = event.target.getAttribute("data-index").toString();
+    userAnswersList[currentIndex] = buttonIndex;
     // Add the user's answer to the list
-    // userAnswersList.append();
     trackProgress(
       buttonIndex == Number(correctAnswersList[currentIndex]) + "",
       buttonIndex
