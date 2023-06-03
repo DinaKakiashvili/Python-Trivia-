@@ -5,13 +5,38 @@ let questionsList = [];
 let codesList = [];
 let correctAnswersList = [];
 let questionIdList = [];
+let userList = JSON.parse('%s');
 
-let currentUser = JSON.parse('%s');
-
+let currentUser = null;
 let currentIndex = 0;
 
 let number_of_question = 0;
 let number_of_correct_answer = 0;
+
+// Define user level
+const levels = [
+  {
+    name: "Beginner",
+    requirements: {
+      answeredQuestions: -1,
+      correctAnswersPercentage: -1
+    }
+  },
+  {
+    name: "Intermediate",
+    requirements: {
+      answeredQuestions: 20,
+      correctAnswersPercentage: 80
+    }
+  },
+  {
+    name: "Advanced",
+    requirements: {
+      answeredQuestions: 50,
+      correctAnswersPercentage: 90
+    }
+  }
+];
 
 // Define the trophies
 var trophies = [
@@ -65,6 +90,9 @@ var trophies = [
   }
 ];
 
+const loginButton = document.getElementById('login-btn');
+loginButton.addEventListener('click', handleLoginButton);
+const menuButtons = [];
 
 firebaseConfig = {
   "databaseURL" : 'https://trivia-game-6a531-default-rtdb.firebaseio.com/'
@@ -73,27 +101,88 @@ firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 database = firebase.database().ref("SkyWard/Questions");
 
+function handleLoginButton(event) {
+  if (currentUser != null) {
+    currentUser = null;
+    loginButton.innerHTML = "LOGIN";
+    handleLoginView(event);
+  } else {
+    currentUser = handleUserLogin();
+    if (currentUser === null) {
+      const errorLabel = document.getElementById("login-error-label");
+      errorLabel.innerHTML = "Wrong Username or Password";
+      return;
+    }
+
+    const sideBar = document.getElementById("side-bar");
+    sideBar.innerHTML = `
+      <img src="https://raw.githubusercontent.com/DinaKakiashvili/test/23a23c21ea5aef7dd8f4c9517884829612fd2aa3/SkyWardLogo.jpg" alt="Image">
+      <button id="home-btn" class="sidebar-btn">HOME</button>
+      <button id="play-btn" class="sidebar-btn">PLAY!</button>
+      <button id="config-btn" class="sidebar-btn">CONFIG</button>
+      <button id="login-btn" class="sidebar-btn">LOGOUT</button>
+    `;
+    const playButton = document.getElementById("play-btn");
+    playButton.addEventListener("click", handleGameInfoView);
+    const homeButton = document.getElementById("home-btn");
+    homeButton.addEventListener("click", handleHomeView);
+    const configButton = document.getElementById("config-btn");
+    configButton.addEventListener("click", handleConfigView);
+    menuButtons.push(playButton, homeButton, configButton);
+    const loginButton = document.getElementById("login-btn");
+    loginButton.addEventListener("click", handleLoginButton);
+
+    // Check type of user
+    if (!currentUser.is_manager) {
+      configButton.className = "wrong-privilage-btn";
+      configButton.removeEventListener('click', handleConfigView);
+    }
+    // Render home view
+    handleHomeView(event);
+  }
+}
 
 
+function handleLoginView(event) {
+  handleMenuButtonClick(event);
+  const sideBar = document.getElementById("side-bar");
+  // Set the login div
+  sideBar.innerHTML = `
+    <img src="https://raw.githubusercontent.com/DinaKakiashvili/test/23a23c21ea5aef7dd8f4c9517884829612fd2aa3/SkyWardLogo.jpg" alt="Image">
+    <input placeholder='Username' for='username' type='text' id='username-input' ></input>
+    <input placeholder='Password' for='password' type='password' id='password-input'></input>
+    <button id="login-btn" class="sidebar-btn">LOGIN</button>
+    <label for='login-error' class='error-label' id='login-error-label'></label>
+  `;
+  const loginButton = document.getElementById("login-btn");
+  loginButton.addEventListener("click", handleLoginButton);
+}
 
-const playButton = document.getElementById('play-btn');
-playButton.addEventListener('click', handleGameInfoView);
-
-const homeButton = document.getElementById('home-btn');
-homeButton.addEventListener('click', handleHomeView);
-
-
-const configButton = document.getElementById('config-btn');
-configButton.addEventListener('click', handleConfigView);
-
-const menuButtons = [];
-menuButtons.push(playButton, homeButton, configButton);
+function handleUserLogin() {
+  const usernameInputValue = document.getElementById("username-input").value;
+  const passwordInputValue = document.getElementById("password-input").value;
+  var foundUser = null;
+  // Iterate through the userList
+  for (let i = 0; i < userList.length; i++) {
+    const user = userList[i];
+    // Check if the username and password match
+    if (
+      user.user_name === usernameInputValue &&
+      user.password === passwordInputValue
+    ) {
+      // Match found!
+      foundUser = user;
+      break;
+    }
+  }
+  return foundUser;
+}
 
 function handleMenuButtonClick(event) {
   // Clear view
   bodyDiv.innerHTML = "";
   // Enable all menu buttons
-  menuButtons.forEach(button => {
+  menuButtons.forEach((button) => {
     button.disabled = false;
   });
   // Disabled active button
@@ -401,26 +490,23 @@ function handleGameInfoView(event) {
   const gameInfoDiv = document.createElement('div');
   gameInfoDiv.innerHTML = `<div class="grid-container">
     <div class = "game-description">
-
         "Skyward" is a captivating trivia game designed to challenge your Python programming skills.<br><br>
         Test your knowledge of Python syntax, data types, control flow, and more in this engaging game.<br><br>
         Each question presents a code snippet, and you'll have to review it and choose the best answer from four options provided.<br><br>
         With a wide range of difficulty levels, from Easy to Hard, the game caters to Python enthusiasts of all skill levels.<br><br>
         Explore real-world coding scenarios and puzzles that will enhance your understanding of Python concepts.
-
     </div>
 
     <div class="game-config">
-      <div>
-        <select id="choose-difficulty" name="difficulty" value="Easy">
-          <option value="" disabled selected>Game Difficulty</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </div>
+      <select id="choose-difficulty" name="difficulty">
+        <option value="" disabled selected>Select Difficulty</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
       <button id="start-game-btn" class = "start-btn" >Start Game</button>
-      <div class='error-msg-box'>
+    </div>
+    <div class='error-msg-box'>
 
     </div>
   </div>`;
@@ -428,7 +514,23 @@ function handleGameInfoView(event) {
   bodyDiv.appendChild(gameInfoDiv);
   
   const difficultySelector = document.getElementById('choose-difficulty');
-  difficultySelector.value = '';
+
+  // Disable options based on user's level
+  const userLevel = currentUser.level;
+  if (userLevel === 'Beginner') {
+    difficultySelector.options[1].disabled = false;  // Enable Easy
+    difficultySelector.options[2].disabled = true;   // Disable Medium
+    difficultySelector.options[3].disabled = true;   // Disable Hard
+  } else if (userLevel === 'Intermediate') {
+    difficultySelector.options[1].disabled = false;  // Enable Easy
+    difficultySelector.options[2].disabled = false;  // Enable Medium
+    difficultySelector.options[3].disabled = true;   // Disable Hard
+  } else {
+    difficultySelector.options[1].disabled = false;  // Enable Easy
+    difficultySelector.options[2].disabled = false;  // Enable Medium
+    difficultySelector.options[3].disabled = false;  // Enable Hard
+  }
+  difficultySelector.value = 'Easy';
   difficultySelector.addEventListener('change', function(){
     difficultyValue = difficultySelector.value;
     document.getElementById('start-game-btn').setAttribute('difficulty', difficultyValue);
@@ -448,6 +550,7 @@ function checkChooseDifficulty(event){
 }
 
 function handlePlayView(event) {
+  let userAnswersList = [];
   currentIndex = 0;
   // Handle menu button click
   handleMenuButtonClick(event);
@@ -465,7 +568,7 @@ function handlePlayView(event) {
       </div>
     </div>
     <div id="code-box" class="grid-code-box">
-      <textarea id="code-text"></textarea>
+      <textarea readonly id="code-text"></textarea>
     </div>
     <div id="answers-box" class="grid-answers-box">
       <button id="answer-btn-0"></button>
@@ -545,12 +648,11 @@ function handlePlayView(event) {
         });
       }
     }
-
-
-
   }
 
   function handleGameOver() {
+    handleUserUpdate_DB();
+
     answersList = [];
     questionsList = [];
     codesList = [];
@@ -559,10 +661,12 @@ function handlePlayView(event) {
     bodyDiv.innerHTML = '';
     const gameDiv = document.createElement('div');
 
-    gameDiv.innerHTML = `<div class="end-game">
+    gameDiv.innerHTML = `
+    <div class="end-game">
       END GAME!
       <canvas id="chartCanvas"></canvas>
-    </div>`;
+    </div>
+    `;
 
     bodyDiv.appendChild(gameDiv);
 
@@ -610,21 +714,25 @@ function handlePlayView(event) {
 
     number_of_question = 0;
     number_of_correct_answer = 0;
+
   }
 
   let streakCounter = 0;
   // Get already earned trophies from the user
+
   var earnedTrophyNames = new Set(currentUser.trophies.map(trophy => trophy.name));
 
   function handleUserUpdate(isCorrect) {
     // Add completed question to user's data
-    currentUser.completed_questions[questionIdList[currentIndex]] = isCorrect;
+    completed_question = {
+      [questionIdList[currentIndex]] : isCorrect
+    };
+    currentUser.completed_questions.push(completed_question);
     // Update number of questions answered
     number_of_question = Number(number_of_question) + 1 + '';
     if (isCorrect) {
       currentUser.points += 1;
       streakCounter += 1;
-
       // Define the streak trophy names and corresponding streak thresholds
       var streakTrophies = [
         { name: "3 Streak", streakThreshold: 3 },
@@ -644,15 +752,14 @@ function handlePlayView(event) {
     } else {
       streakCounter = 0; // Reset the streak counter if the answer is incorrect
     }
-    console.log(currentUser);
-    // ADD CODE TO UPDATE THE USER IN THE DATABASE
-
   
   }
-
+  
   function handleAnswerClick(event) { 
     isChangingQuestion = true;
     const buttonIndex = event.target.getAttribute('data-index').toString();
+    // Add the user's answer to the list
+    userAnswersList.append();
     trackProgress(buttonIndex == (Number(correctAnswersList[currentIndex]) + ''), buttonIndex); 
     handleUserUpdate(buttonIndex == (Number(correctAnswersList[currentIndex]) + ''));
     currentIndex = currentIndex + 1;
@@ -719,57 +826,152 @@ function handlePlayView(event) {
 function handleHomeView(event) {
   // Handle menu button click
   handleMenuButtonClick(event);
+  var readyToLevelUp = false;
+  const userAnsweredQuestions = currentUser.completed_questions.length;
+  var userCorrectAnswers = 0;
+  for (let i = 0; i < currentUser.completed_questions.length; i++) {
+    const question = currentUser.completed_questions[i];
+    const value = Object.values(question)[0];
+    if (value === true) {
+      userCorrectAnswers++;
+    }
+  }
+  var userSuccessRate = 0;
+  if (userAnsweredQuestions > 0) {
+    userSuccessRate = (userCorrectAnswers / userAnsweredQuestions) * 100;
+  }
 
-  const homeDiv = document.createElement('div');
+  let remainingRequirements = null;
+  let nextLevel = null;
+  // Update user level if needed
+  for (let i = 0; i < levels.length; i++) {
+    const level = levels[i];
+    const { answeredQuestions, correctAnswersPercentage } = level.requirements;
+    if (
+      userAnsweredQuestions >= answeredQuestions &&
+      userSuccessRate >= correctAnswersPercentage
+    ) {
+      currentUser.level = level.name;
+
+      if (i < levels.length - 1) {
+        nextLevel = levels[i + 1];
+        const remainingAnsweredQuestions = nextLevel.requirements.answeredQuestions - userAnsweredQuestions;
+        const remainingSuccessRate = nextLevel.requirements.correctAnswersPercentage;
+
+        remainingRequirements = {
+          answeredQuestions: Math.max(remainingAnsweredQuestions, 0),
+          correctAnswersPercentage: Math.max(remainingSuccessRate, 0)
+        };
+      }
+    }
+  }
+
+  const homeDiv = document.createElement("div");
   homeDiv.innerHTML = `
     <div class="grid-container">
       <div class="home-view-div" id="home-stats"></div>
+      <div class="home-view-div" id="home-level"></div>
       <div class="home-view-div" id="home-leader">Leaderboard</div>
     </div>
     <div class="home-view-div trophy-container" id="home-trophy"></div>
   `;
-  
+
   bodyDiv.appendChild(homeDiv);
 
-  var trophyContainer = document.getElementById('home-trophy');
-  // Generate HTML content for the user's trophies
-  var trophyHTML = '';
-  if (!currentUser.trophies.length) {
-    trophyHTML = 'No trophies';
+
+  var homeLevelContainer = document.getElementById("home-level");
+  // Generate HTML content for the user's level
+  var levelHTML = "";
+
+  levelHTML += "<p>Next level is " + nextLevel.name + "</p>";
+  levelHTML += "<p>To level up, you need to answer " + remainingRequirements.answeredQuestions + " more questions and maintain a success rate of " + remainingRequirements.correctAnswersPercentage + "%%.</p>";
+  levelHTML += "<p id='level-up-text'></p>";
+  levelHTML += "<button id='level-up-btn' class='wrong-privilage-btn' style='margin: 0; margin-top: 10px; margin-bottom: 10px;'>LEVEL UP</button>";
+
+  // Update the contents of the <div> element with the level HTML
+  homeLevelContainer.innerHTML = levelHTML;
+
+  // Check if the user is ready to level up
+  if (remainingRequirements.answeredQuestions <= 0 && remainingRequirements.correctAnswersPercentage <= userSuccessRate) {
+    readyToLevelUp = true;
+    levelUpText = document.getElementById('level-up-text');
+    levelUpText.innerHTML = "You are ready to level up!";
+    levelUpButton = document.getElementById('level-up-btn');
+    levelUpButton.className = "sidebar-btn";
+    levelUpButton.addEventListener("click", function() {
+      currentUser.level = nextLevel.name;
+      handleUserUpdate_DB();
+      handleHomeView(event);
+    });
   }
   else {
+    readyToLevelUp = false;
+  }
+  
+
+  var leaderboardContainer = document.getElementById("home-leader");
+  // Generate HTML content for the leaderboard
+  var leaderboardHTML = "";
+  userList.sort((a, b) => parseFloat(b.points) - parseFloat(a.points));
+  if (!userList.length) {
+    leaderboardContainer.innerHTML = "No users";
+  } else {
+    for (var i = 0; i < userList.length; i++) {
+      var user = userList.sort()[i];
+      leaderboardHTML += '<div class="leaderboard-user">';
+      leaderboardHTML += `<p>${i + 1}.&nbsp;</p>` + " " + "<p class='leaderboard-username'>" + user.user_name + "</p>";
+      leaderboardHTML += "<p class='leaderboard-points'>" + user.points + "</p>";
+      leaderboardHTML += "</div>";
+    }
+  }
+  // Update the contents of the <div> element with the leaderboard HTML
+  leaderboardContainer.innerHTML = leaderboardHTML;
+
+  var trophyContainer = document.getElementById("home-trophy");
+  // Generate HTML content for the user's trophies
+  var trophyHTML = "";
+
+  if (!currentUser.trophies.length) {
+    trophyHTML = "No trophies";
+  } else {
     for (var i = 0; i < currentUser.trophies.length; i++) {
       var trophy = currentUser.trophies[i];
       trophyHTML += '<div class="trophy">';
-      trophyHTML += '<p>' + trophy.name + '</p>';
-      trophyHTML += '<p>' + trophy.description + '</p>';
-      trophyHTML += '</div>';
+      trophyHTML += "<p>" + trophy.name + "</p>";
+      trophyHTML += "<p>" + trophy.description + "</p>";
+      trophyHTML += "</div>";
     }
   }
 
   // Update the contents of the <div> element with the trophy HTML
   trophyContainer.innerHTML = trophyHTML;
 
-  var statsContainer = document.getElementById('home-stats');
+  var statsContainer = document.getElementById("home-stats");
   // Create HTML content for the user's details
-
-  const numberOfQuestions = Object.keys(currentUser.completed_questions).length;
-  const numberOfCorrectAnswers = Object.values(currentUser.completed_questions).filter(value => value === true).length;
-
-  let successRate = 0;
-  if (numberOfQuestions > 0) {
-    successRate = (numberOfCorrectAnswers / numberOfQuestions) * 100;
-  }
-
-  var userDetailsHTML = '<p>Welcome back ' + currentUser.user_name + '</p>';
-  userDetailsHTML += '<p>Total Points: ' + currentUser.points + '</p>';
-  userDetailsHTML += '<p>You have answered ' + numberOfQuestions + ' questions.</p>';
-  userDetailsHTML += `<p>You have a ${successRate.toFixed(2)}%% success rate.</p>`;
+  var userDetailsHTML = "<p>Welcome back " + currentUser.user_name + "</p>";
+  userDetailsHTML += "<p>Player Level: " + currentUser.level + "</p>";
+  userDetailsHTML += "<p>Total Points: " + currentUser.points + "</p>";
+  userDetailsHTML +=
+    "<p>You have answered " + userAnsweredQuestions + " questions.</p>";
+  userDetailsHTML += `<p>You have a ${userSuccessRate.toFixed(
+    2
+  )}%% success rate.</p>`;
 
   // Update the contents of the <div> element with the user details HTML
   statsContainer.innerHTML = userDetailsHTML;
-
 }
 
-
-
+function handleUserUpdate_DB() {
+  // Update the user in the Firebase database
+  const userKey = currentUser.db_key;
+  const userPath = `/SkyWard/Users/${userKey}`
+  const userRef = firebase.database().ref(userPath);
+  userRef.set(currentUser)
+    .then(() => {
+      console.log('User updated successfully');
+    })
+    .catch((error) => {
+      console.error('Error updating user:', error);
+    });
+  console.log(currentUser);
+}
