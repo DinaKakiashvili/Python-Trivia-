@@ -672,14 +672,16 @@ function handlePlayView(event) {
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
     ) {
+      console.log(userAnswersList);
       var buttonIndex = userAnswersList[currentIndex];
       var questionId = questionIdList[currentIndex];
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
-        answerButtons.forEach(function (button,index) {
+        answerButtons.forEach(function (button, index) {
           button.disabled = true;
           if (index === buttonIndex) {
-            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
+            button.style.backgroundColor =
+              getComputedStyle(currentProgressNode).backgroundColor;
           }
         });
       } else {
