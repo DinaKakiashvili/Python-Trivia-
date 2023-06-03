@@ -679,8 +679,9 @@ function handlePlayView(event) {
         // User already answered this question
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
+          console.log(index,buttonIndex)
           if (index === buttonIndex) {
-            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
+            button.style.backgroundColor = "red";
           }
         });
       } else {
