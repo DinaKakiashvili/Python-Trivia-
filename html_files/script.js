@@ -672,12 +672,14 @@ function handlePlayView(event) {
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
     ) {
+
       var buttonIndex = userAnswersList[currentIndex];
       var questionId = questionIdList[currentIndex];
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
         console.log("blocking")
         answerButtons.forEach(function (button,index) {
+          console.log(button.style.backgroundColor)
           button.disabled = true;
           if (index.toString() === buttonIndex.toString()) {
             button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
