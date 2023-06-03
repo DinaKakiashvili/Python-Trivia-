@@ -680,7 +680,7 @@ function handlePlayView(event) {
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
           if (index === buttonIndex) {
-            console.log("here painting red")
+            console.log("here painting  red")
             button.style.backgroundColor = "red";
           }
         });
