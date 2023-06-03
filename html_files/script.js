@@ -679,15 +679,16 @@ function handlePlayView(event) {
         console.log("blocking")
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
-          console.log(index.toString() === buttonIndex.toString())
           if (index.toString() === buttonIndex.toString()) {
-            console.log("here painting  red")
-            button.style.backgroundColor = "red";
+            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
+          } else {
+            button.style.backgroundColor = "rgb(255, 255, 255)";
           }
         });
       } else {
         // Unanswered question
         answerButtons.forEach(function (button) {
+          button.style.backgroundColor = "rgb(255, 255, 255)";
           button.disabled = false;
         });
       }
