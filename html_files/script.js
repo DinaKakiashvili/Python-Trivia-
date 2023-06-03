@@ -1,5 +1,5 @@
 const NUMBER_OF_QUESTIONS = 7;
-const bodyDiv = document.getElementById("body");
+const bodyDiv = document.getElementById('body');
 let answersList = [];
 let questionsList = [];
 let codesList = [];
