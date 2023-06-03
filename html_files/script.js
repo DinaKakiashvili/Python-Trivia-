@@ -1,3 +1,4 @@
+const NUMBER_OF_QUESTIONS = 7;
 const bodyDiv = document.getElementById('body');
 let answersList = [];
 let questionsList = [];
@@ -12,6 +13,57 @@ let currentIndex = 0;
 let number_of_question = 0;
 let number_of_correct_answer = 0;
 
+// Define the trophies
+var trophies = [
+  {
+    name: "3 Streak",
+    description: "Answered correctly 3 times in a row.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "High Five!",
+    description: "Answered correctly 5 times in a row.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Lucky Number",
+    description: "Answered all 7 questions correctly in a single game.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Rapid Responder",
+    description: "Answered all 7 questions within the time limit.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Easy Category Champion",
+    description: "Answered all questions correctly in the Easy category.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Medium Category Champion",
+    description: "Answered all questions correctly in the Medium category.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Hard Category Champion",
+    description: "Answered all questions correctly in the Hard category.",
+    time: "26/05/2023",
+    points: 10
+  },
+  {
+    name: "Trivia Whiz",
+    description: "Accumulated 100 total points across multiple games.",
+    time: "26/05/2023",
+    points: 10
+  }
+];
 
 
 firebaseConfig = {
@@ -49,27 +101,38 @@ function handleMenuButtonClick(event) {
 }
 
 function fetchQuestionsFromDB(difficultyLevel) {
-  answersList = [];
-  questionsList = [];
-  codesList = [];
-  correctAnswersList = [];
-  questionIdList = [];
-  database.orderByChild('difficulty').equalTo(difficultyLevel).once('value')
-      .then(function(snapshot) {
-        // Handle the retrieved data here
-        snapshot.forEach(function(childSnapshot) {
-          var question = childSnapshot.val();
-          answersList.push(question.answers)
-          questionsList.push(question.question)
-          codesList.push(question.code)
-          correctAnswersList.push(question.correctAnswer)
-          questionIdList.push(question.question_id)
-          console.log(question)
-        });
-      })
-      .catch(function(error) {
-        console.error(error);
-    });    
+  database.orderByChild('difficulty').equalTo(difficultyLevel).once('value').then(function(snapshot) {
+      // Handle the retrieved data here
+      snapshot.forEach(function(childSnapshot) {
+        var question = childSnapshot.val();
+        answersList.push(question.answers);
+        questionsList.push(question.question);
+        codesList.push(question.code);
+        correctAnswersList.push(question.correctAnswer - 1);
+        questionIdList.push(question.question_id);
+      });
+
+      // Shuffle the questions
+      for (let i = questionsList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questionsList[i], questionsList[j]] = [questionsList[j], questionsList[i]];
+        [answersList[i], answersList[j]] = [answersList[j], answersList[i]];
+        [codesList[i], codesList[j]] = [codesList[j], codesList[i]];
+        [correctAnswersList[i], correctAnswersList[j]] = [correctAnswersList[j], correctAnswersList[i]];
+        [questionIdList[i], questionIdList[j]] = [questionIdList[j], questionIdList[i]];
+      }
+      // Take only 7 questions
+      questionsList = questionsList.slice(0, 7);
+      answersList = answersList.slice(0, 7);
+      codesList = codesList.slice(0, 7);
+      correctAnswersList = correctAnswersList.slice(0, 7);
+      questionIdList = questionIdList.slice(0, 7);
+
+    })
+    .catch(function(error) {
+      console.error(error);
+  });    
+
 }
 
 function handleConfigView(event) {
@@ -140,7 +203,7 @@ function handleConfigView(event) {
         </div>
         <div>
           </div>
-            <div class='submit-message-box' style='text-align: center; font-size: 1em;'></div>
+            <div class='submit-message-box' style='text-align: center; font-size: 1em; color:white;background-color:#FF0000;opacity:0.9;'></div>
 
         </div>       
     </div>
@@ -325,6 +388,12 @@ function clearInputs() {
 }
 
 function handleGameInfoView(event) {
+  // Clear questions
+  answersList = [];
+  questionsList = [];
+  codesList = [];
+  correctAnswersList = [];
+  questionIdList = [];
   currentIndex = 0;
   // Handle menu button click
   handleMenuButtonClick(event);
@@ -409,6 +478,31 @@ function handlePlayView(event) {
   bodyDiv.appendChild(gameDiv);
   
 
+  var isChangingQuestion = false;
+  const skipQuestionButton = document.getElementById('skip-question');
+  skipQuestionButton.addEventListener('click', function(){
+    if (!isChangingQuestion) {
+      currentIndex += 1;
+      if (currentIndex === NUMBER_OF_QUESTIONS) {
+        handleGameOver();
+      }
+      setQuestion();
+      handleProgNode();
+    }
+  });
+
+  const prevQuestionButton = document.getElementById('prev-question');
+  prevQuestionButton.addEventListener('click', function(){
+    if (!isChangingQuestion) {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+      }
+      setQuestion();
+      handleProgNode();
+    }
+  });
+
+
   const answerButtons = document.querySelectorAll('#answers-box > button');
 
   function displayProgressNode(index) {
@@ -422,13 +516,38 @@ function handlePlayView(event) {
     progressBox.appendChild(displayProgressNode(i));
   }
 
-  function setQuestion() {
+  function setQuestion() { 
+    var currentProgressNode = document.querySelector(`.prog-node-${currentIndex}`);
+    
     // Display answers
     answerButtons.forEach((element, index) => element.innerHTML = answersList[currentIndex][index]);
     // Set the question
     document.getElementById('question-text').innerHTML = questionsList[currentIndex];
     // Set the code
     document.getElementById('code-text').value = codesList[currentIndex];
+
+    answerButtons.forEach(function(button) {
+      button.disabled = false;
+    });
+
+    if (getComputedStyle(currentProgressNode).backgroundColor != 'rgb(255, 255, 255)') {
+      var questionId = questionIdList[currentIndex];
+      if (currentUser.completed_questions.hasOwnProperty(questionId)) {
+        // User already answered this question
+        answerButtons.forEach(function(button) {
+          button.disabled = true;
+        });
+      }
+      else {
+        // Unanswered question
+        answerButtons.forEach(function(button) {
+          button.disabled = false;
+        });
+      }
+    }
+
+
+
   }
 
   function handleGameOver() {
@@ -451,12 +570,12 @@ function handlePlayView(event) {
     const chartData = {
       labels: ['Correct', 'Incorrect'],
       datasets: [{
-        label: 'Question Results',
+        label: 'Correct answers',
         data: [number_of_correct_answer, number_of_question - number_of_correct_answer],
         backgroundColor: ['green', 'red'],
       }],
     };
-
+    const maxTicks = Math.ceil(number_of_question);   
     new Chart(chartCanvas, {
       type: 'bar',
       data: chartData,
@@ -464,9 +583,10 @@ function handlePlayView(event) {
         scales: {
          y: {
             beginAtZero: true,
-            max: number_of_question,
+            max: maxTicks,
             ticks: {
               color: 'white', 
+              stepSize: 1,
             },
           },
          x: {
@@ -480,6 +600,9 @@ function handlePlayView(event) {
             display: true,
             text: 'Question Results',
             color: 'white', 
+            font:{
+              size:30,
+            },
           },
         },
       },
@@ -489,29 +612,49 @@ function handlePlayView(event) {
     number_of_correct_answer = 0;
   }
 
+  let streakCounter = 0;
+  // Get already earned trophies from the user
+  var earnedTrophyNames = new Set(currentUser.trophies.map(trophy => trophy.name));
 
   function handleUserUpdate(isCorrect) {
-    // Update user
+    // Add completed question to user's data
     currentUser.completed_questions[questionIdList[currentIndex]] = isCorrect;
+    // Update number of questions answered
     number_of_question = Number(number_of_question) + 1 + '';
-    if (isCorrect){ 
-      currentUser.points = Number(currentUser.points) + 2 + '';
-      number_of_correct_answer = Number(number_of_correct_answer) + 1 + '';
+    if (isCorrect) {
+      currentUser.points += 1;
+      streakCounter += 1;
+
+      // Define the streak trophy names and corresponding streak thresholds
+      var streakTrophies = [
+        { name: "3 Streak", streakThreshold: 3 },
+        { name: "High Five!", streakThreshold: 5 },
+        { name: "Lucky Number", streakThreshold: 7 }
+      ];
+
+      // Check if any of the streak trophies are earned
+      streakTrophies.forEach(streakTrophy => {
+        if (streakCounter === streakTrophy.streakThreshold && !earnedTrophyNames.has(streakTrophy.name)) {
+          var earnedTrophy = trophies.find(trophy => trophy.name === streakTrophy.name);
+          currentUser.trophies.push(earnedTrophy);
+          currentUser.points += earnedTrophy.points;
+          earnedTrophyNames.add(streakTrophy.name);
+        }
+      });
+    } else {
+      streakCounter = 0; // Reset the streak counter if the answer is incorrect
     }
     console.log(currentUser);
+    // ADD CODE TO UPDATE THE USER IN THE DATABASE
 
   
   }
 
   function handleAnswerClick(event) { 
+    isChangingQuestion = true;
     const buttonIndex = event.target.getAttribute('data-index').toString();
-    console.log(buttonIndex);
-    console.log(currentIndex);
-    console.log(questionsList); 
-    console.log(correctAnswersList);  
-    console.log(Number(correctAnswersList[currentIndex])-1 + '');
-    trackProgress(buttonIndex == (Number(correctAnswersList[currentIndex])-1 + ''), buttonIndex); 
-    handleUserUpdate(buttonIndex == (Number(correctAnswersList[currentIndex])-1 + ''));
+    trackProgress(buttonIndex == (Number(correctAnswersList[currentIndex]) + ''), buttonIndex); 
+    handleUserUpdate(buttonIndex == (Number(correctAnswersList[currentIndex]) + ''));
     currentIndex = currentIndex + 1;
     if (currentIndex === questionsList.length) {
       setTimeout(function() {
@@ -520,19 +663,23 @@ function handlePlayView(event) {
     }
     else {
       setTimeout(function() {
+        handleProgNode();
         setQuestion();
+        isChangingQuestion = false;
       }, 2500);
+      
     }
   }
 
   function trackProgress(isCorrect, buttonIndex) {
-    const progressNode = document.querySelector(`.prog-node-${currentIndex}`);
+    var currentProgressNode = document.querySelector(`.prog-node-${currentIndex}`);
     const currentButton = document.querySelector(`#answer-btn-${buttonIndex}`);
     if (isCorrect) {
-      progressNode.style.backgroundColor = 'green';
+      currentProgressNode.style.backgroundColor = 'green';
       currentButton.style.backgroundColor = 'green';
+      number_of_correct_answer = Number(number_of_correct_answer) + 1 + '';
     } else {
-      progressNode.style.backgroundColor = 'red';
+      currentProgressNode.style.backgroundColor = 'red';
       currentButton.style.backgroundColor = 'red';
     }
     setTimeout(function() {
@@ -546,6 +693,19 @@ function handlePlayView(event) {
     });
   }
 
+  function handleProgNode() {
+    var progNodeList = document.querySelectorAll('[class^="prog-node-"]');
+    progNodeList.forEach(node => {
+      if (node.classList.contains(`prog-node-${currentIndex}`)) {
+        node.style.outline = '3px solid #fff';
+        node.style.outlineOffset = '3px';
+      } else {
+        node.style.outline = 'none';
+      }
+    });
+  }
+
+  handleProgNode();
   setQuestion();
   for (let i = 0; i < answerButtons.length; i++) {
     var answerBtn = document.getElementById(`answer-btn-${i}`);
@@ -560,28 +720,56 @@ function handleHomeView(event) {
   // Handle menu button click
   handleMenuButtonClick(event);
 
- 
-
   const homeDiv = document.createElement('div');
   homeDiv.innerHTML = `
-    <div class="headline">
-      <h1>Welcome to SkyWard!</h1>
-    </div>
     <div class="grid-container">
-
-
-
-        <div class="element" id="home-stats">Stats</div>
-        <div class="element" id="home-leader">Leaderboard</div>
-        
-
+      <div class="home-view-div" id="home-stats"></div>
+      <div class="home-view-div" id="home-leader">Leaderboard</div>
     </div>
-    <div class="element" id="home-trophy">Trophies</div>
+    <div class="home-view-div trophy-container" id="home-trophy"></div>
   `;
-
-  // Add classes and styles to the home div
-
-
+  
   bodyDiv.appendChild(homeDiv);
+
+  var trophyContainer = document.getElementById('home-trophy');
+  // Generate HTML content for the user's trophies
+  var trophyHTML = '';
+  if (!currentUser.trophies.length) {
+    trophyHTML = 'No trophies';
+  }
+  else {
+    for (var i = 0; i < currentUser.trophies.length; i++) {
+      var trophy = currentUser.trophies[i];
+      trophyHTML += '<div class="trophy">';
+      trophyHTML += '<p>' + trophy.name + '</p>';
+      trophyHTML += '<p>' + trophy.description + '</p>';
+      trophyHTML += '</div>';
+    }
+  }
+
+  // Update the contents of the <div> element with the trophy HTML
+  trophyContainer.innerHTML = trophyHTML;
+
+  var statsContainer = document.getElementById('home-stats');
+  // Create HTML content for the user's details
+
+  const numberOfQuestions = Object.keys(currentUser.completed_questions).length;
+  const numberOfCorrectAnswers = Object.values(currentUser.completed_questions).filter(value => value === true).length;
+
+  let successRate = 0;
+  if (numberOfQuestions > 0) {
+    successRate = (numberOfCorrectAnswers / numberOfQuestions) * 100;
+  }
+
+  var userDetailsHTML = '<p>Welcome back ' + currentUser.user_name + '</p>';
+  userDetailsHTML += '<p>Total Points: ' + currentUser.points + '</p>';
+  userDetailsHTML += '<p>You have answered ' + numberOfQuestions + ' questions.</p>';
+  userDetailsHTML += `<p>You have a ${successRate.toFixed(2)}%% success rate.</p>`;
+
+  // Update the contents of the <div> element with the user details HTML
+  statsContainer.innerHTML = userDetailsHTML;
+
 }
+
+
 
