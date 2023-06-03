@@ -668,7 +668,7 @@ function handlePlayView(event) {
       button.disabled = false;
       button.style.backgroundColor = "#5282b2";
     });
-
+    console.log(getComputedStyle(currentProgressNode).backgroundColor != "rgb(255, 255, 255)")
     if (
       getComputedStyle(currentProgressNode).backgroundColor !=
       "rgb(255, 255, 255)"
