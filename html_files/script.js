@@ -681,16 +681,15 @@ function handlePlayView(event) {
         answerButtons.forEach(function (button,index) {
           console.log(button.style.backgroundColor)
           button.disabled = true;
-          if (index.toString() === buttonIndex.toString()) {
-            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
-          } else {
-            button.style.backgroundColor = "rgb(255, 255, 255)";
-          }
+          // if (index.toString() === buttonIndex.toString()) {
+          //   button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
+          // } else {
+          //   button.style.backgroundColor = "rgb(255, 255, 255)";
+          // }
         });
       } else {
         // Unanswered question
         answerButtons.forEach(function (button) {
-          button.style.backgroundColor = "rgb(255, 255, 255)";
           button.disabled = false;
         });
       }
