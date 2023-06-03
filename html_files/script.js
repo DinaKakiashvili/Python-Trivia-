@@ -673,17 +673,14 @@ function handlePlayView(event) {
       "rgb(255, 255, 255)"
     ) {
       var buttonIndex = userAnswersList[currentIndex];
-      console.log(userAnswersList)
       var questionId = questionIdList[currentIndex];
-      console.log(currentUser.completed_questions.hasOwnProperty(questionId))
       if (currentUser.completed_questions.hasOwnProperty(questionId)) {
         // User already answered this question
         console.log("blocking")
         answerButtons.forEach(function (button,index) {
           button.disabled = true;
-          console.log(index);
-          console.log(buttonIndex);
           if (index === buttonIndex) {
+            console.log("here painting red")
             button.style.backgroundColor = "red";
           }
         });
