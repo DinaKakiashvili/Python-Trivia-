@@ -5,7 +5,7 @@ let questionsList = [];
 let codesList = [];
 let correctAnswersList = [];
 let questionIdList = [];
-let userList = JSON.parse("%s");
+let userList = JSON.parse('%s');
 
 let currentUser = null;
 let currentIndex = 0;
