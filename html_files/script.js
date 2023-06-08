@@ -1,12 +1,12 @@
 const NUMBER_OF_QUESTIONS = 7;
-const bodyDiv = document.getElementById("body");
+const bodyDiv = document.getElementById('body');
 let answersList = [];
 let questionsList = [];
 let codesList = [];
 let correctAnswersList = [];
 let questionIdList = [];
+let allTriviaQuestions = [];
 let userList = JSON.parse('%s');
-
 let currentUser = null;
 let currentIndex = 0;
 
@@ -234,80 +234,100 @@ function fetchQuestionsFromDB(difficultyLevel) {
     });
 }
 
+function getAllQuestionsFromDB() {
+  return database
+    .once("value")
+    .then(function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        const question = childSnapshot.val();
+        allTriviaQuestions.push(question);
+      });
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
+}
+
 function handleConfigView(event) {
-  // Handle menu button click
+  getAllQuestionsFromDB();
   handleMenuButtonClick(event);
   // A form to add questions to the database
   const configDiv = document.createElement("div");
   configDiv.innerHTML = `
-    <div class="form-container">
-        <div class="columns">
-            <div class="questionAdd-config">
-              <label for="question">Question:</label>
-              <input type="text" id="question" name="question" required>
-              
-              <label for="code-snippet">Code Snippet:</label>
-              <textarea id="code-snippet" name="code-snippet" rows="4" required></textarea>
-
-              <label for="answers">Choose correct answer:</label>
-              <div class="radio-container">
-                  <input type="radio" id="correct-answer1" name="correct-answer" value="1" required>
-                  <label for="correct-answer1">Answer 1</label>
-              </div>
-              
-              <div class="radio-container">
-                  <input type="radio" id="correct-answer2" name="correct-answer" value="2" required>
-                  <label for="correct-answer2">Answer 2</label>
-              </div>
-              
-              <div class="radio-container">
-                  <input type="radio" id="correct-answer3" name="correct-answer" value="3" required>
-                  <label for="correct-answer3">Answer 3</label>
-              </div>
-              
-              <div class="radio-container">
-                  <input type="radio" id="correct-answer4" name="correct-answer" value="4" required>
-                  <label for="correct-answer4">Answer 4</label>
-              </div>
-
-              
-              </div>
-          
-              <div class="right-column">
-              <label for="answer1">Answer 1:</label>
-              <input type="text" id="answer1" name="answer1" required>
-              
-              <label for="answer2">Answer 2:</label>
-              <input type="text" id="answer2" name="answer2" required>
-              
-              <label for="answer3">Answer 3:</label>
-              <input type="text" id="answer3" name="answer3" required>
-              
-              <label for="answer4">Answer 4:</label>
-              <input type="text" id="answer4" name="answer4" required>
-
-              <label for="difficulty">Difficulty:</label>
-                <select id="difficulty" name="difficulty" required>
-                    <option value="easy" selected>Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-
-              <div>
-                <button id = "submit-question" class="submit-button" type="submit" value="Submit">Submit</button>
-              </div>
-
-
-            </div>
-        </div>
-        <div>
+  <div class="form-container">
+      <div class="columns">
+      <div class="left-column">
+        <div class="update-container">
+          <label for="update-or-add">Update or Add:</label>
+          <div class="radio-container">
+            <input type="radio" id="update" name="update-or-add" value="update" required>
+            <label for="update">Update</label>
           </div>
-            <div class='submit-message-box' style='text-align: center; font-size: 1em; color:white;background-color:#FF0000;opacity:0.9;'></div>
+          <div class="radio-container">
+            <input type="radio" id="add" name="update-or-add" value="add" required>
+            <label for="add">Add</label>
+          </div>
+        </div>
+        <label for="question">Question:</label>
+        <input type="text" id="question" name="question" required>
 
-        </div>       
+        <label for="code-snippet">Code Snippet:</label>
+        <textarea id="code-snippet" name="code-snippet" rows="4" required></textarea>
+
+        <label for="answers">Choose correct answer:</label>
+        <div class="radio-container">
+          <input type="radio" id="correct-answer1" name="correct-answer" value="1" required>
+          <label for="correct-answer1">Answer 1</label>
+        </div>
+
+        <div class="radio-container">
+          <input type="radio" id="correct-answer2" name="correct-answer" value="2" required>
+          <label for="correct-answer2">Answer 2</label>
+        </div>
+
+        <div class="radio-container">
+          <input type="radio" id="correct-answer3" name="correct-answer" value="3" required>
+          <label for="correct-answer3">Answer 3</label>
+        </div>
+
+        <div class="radio-container">
+          <input type="radio" id="correct-answer4" name="correct-answer" value="4" required>
+          <label for="correct-answer4">Answer 4</label>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <label for="answer1">Answer 1:</label>
+        <input type="text" id="answer1" name="answer1" required>
+
+        <label for="answer2">Answer 2:</label>
+        <input type="text" id="answer2" name="answer2" required>
+
+        <label for="answer3">Answer 3:</label>
+        <input type="text" id="answer3" name="answer3" required>
+
+        <label for="answer4">Answer 4:</label>
+        <input type="text" id="answer4" name="answer4" required>
+
+        <label for="difficulty">Difficulty:</label>
+        <select id="difficulty" name="difficulty" required>
+          <option value="easy" selected>Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <div>
+          <button id="submit-question" class="submit-button" type="submit" value="Submit">Submit</button>
+        </div>
+      </div>
     </div>
+    <div>
+    </div>
+    <div class='submit-message-box' style='text-align: center; font-size: 1em; color:white;background-color:#FF0000;opacity:0.9;'></div>
+  </div>
   `;
   bodyDiv.appendChild(configDiv);
+
 
   let questionValue = null;
   let codeValue = null;
@@ -327,6 +347,10 @@ function handleConfigView(event) {
   const forthAnswerInput = document.getElementById("answer4");
 
   const difficultySelector = document.getElementById("difficulty");
+  const updateRadioButton = document.getElementById("update");
+  const addRadioButton = document.getElementById("add");
+  setAddOrUpdate(updateRadioButton, addRadioButton, questionInput);
+
   difficultySelector.value = "easy";
   document
     .getElementById("submit-question")
@@ -461,6 +485,39 @@ function handleAddQuestion(event) {
     clearInputs();
     resultMsgBox.textContent = "";
   }, 5000);
+}
+
+function setAddOrUpdate(updateRadioButton, addRadioButton, questionInput) {
+  const questionSelect = document.createElement("select");
+  questionSelect.id = "question-select";
+  questionSelect.name = "question";
+  questionSelect.required = true;
+  updateRadioButton.addEventListener("change", function (event) {
+    if (updateRadioButton.checked) {
+      // Replace the Question input with the Select input
+      questionInput.replaceWith(questionSelect);
+
+      // Clear the Select options
+      questionSelect.innerHTML = "";
+
+      // Fill the Select options with question IDs
+      allTriviaQuestions.forEach(function (question) {
+        console.log(question);
+        const option = document.createElement("option");
+        option.value = question.question_id;
+        option.textContent = question.question_id;
+        questionSelect.appendChild(option);
+      });
+    }
+  });
+
+  addRadioButton.addEventListener("change", function (event) {
+    if (addRadioButton.checked) {
+      // Replace the Select input with a text input
+      questionSelect.replaceWith(questionInput);
+    }
+  });
+
 }
 
 function checkInputs() {
@@ -666,6 +723,7 @@ function handlePlayView(event) {
 
     answerButtons.forEach(function (button) {
       button.disabled = false;
+      button.style.backgroundColor = "#5282b2";
     });
 
     if (
@@ -674,22 +732,20 @@ function handlePlayView(event) {
     ) {
       var buttonIndex = userAnswersList[currentIndex];
       var questionId = questionIdList[currentIndex];
-      if (currentUser.completed_questions.hasOwnProperty(questionId)) {
+      if (
+        currentUser.completed_questions.filter((question) =>
+          question.hasOwnProperty(questionId)
+        ) != []
+      ) {
         // User already answered this question
-        answerButtons.forEach(function (button,index) {
+        answerButtons.forEach(function (button, index) {
           button.disabled = true;
           if (index.toString() === buttonIndex.toString()) {
-            console.log("Semek")
-            button.style.backgroundColor = getComputedStyle(currentProgressNode).backgroundColor;
-          }
-          else {
+            button.style.backgroundColor =
+              getComputedStyle(currentProgressNode).backgroundColor;
+          } else {
             button.style.backgroundColor = "#5282b2";
           }
-        });
-      } else {
-        // Unanswered question
-        answerButtons.forEach(function (button) {
-          button.disabled = false;
         });
       }
     }
@@ -887,15 +943,16 @@ function handleHomeView(event) {
   // Handle menu button click
   handleMenuButtonClick(event);
   var readyToLevelUp = false;
-  const userAnsweredQuestions = currentUser.completed_questions.length;
+  const userAnsweredQuestions = currentUser.completed_questions.filter(
+    (question) => question != null
+  ).length;
   var userCorrectAnswers = 0;
-  for (let i = 0; i < currentUser.completed_questions.length; i++) {
-    const question = currentUser.completed_questions[i];
-    const value = Object.values(question)[0];
-    if (value === true) {
-      userCorrectAnswers++;
+  currentUser.completed_questions.forEach((question) => {
+    //count correct questions
+    if (question != null && Object.values(question)[0]) {
+      userCorrectAnswers += 1;
     }
-  }
+  });
   var userSuccessRate = 0;
   if (userAnsweredQuestions > 0) {
     userSuccessRate = (userCorrectAnswers / userAnsweredQuestions) * 100;
