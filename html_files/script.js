@@ -237,13 +237,13 @@ function fetchQuestionsFromDB(difficultyLevel) {
 function getAllQuestionsFromDB() {
   return database
     .once("value")
-    .then(function(snapshot) {
-      snapshot.forEach(function(childSnapshot) {
+    .then(function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
         const question = childSnapshot.val();
         allTriviaQuestions.push(question);
       });
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.error(error);
     });
 }
@@ -328,7 +328,6 @@ function handleConfigView(event) {
   `;
   bodyDiv.appendChild(configDiv);
 
-
   let questionValue = null;
   let codeValue = null;
   let firstAnswerValue = null;
@@ -336,20 +335,62 @@ function handleConfigView(event) {
   let thirdAnswerValue = null;
   let forthAnswerValue = null;
   let correctAnswerValue = null;
+  let questionIdValue = null;
   let difficultyValue = "easy";
 
   const questionInput = document.getElementById("question");
   const codeInput = document.getElementById("code-snippet");
-
   const firstAnswerInput = document.getElementById("answer1");
   const secondAnswerInput = document.getElementById("answer2");
   const thirdAnswerInput = document.getElementById("answer3");
   const forthAnswerInput = document.getElementById("answer4");
-
   const difficultySelector = document.getElementById("difficulty");
+  const radioButtons = document.querySelectorAll(
+    'input[name="correct-answer"]'
+  );
   const updateRadioButton = document.getElementById("update");
   const addRadioButton = document.getElementById("add");
-  setAddOrUpdate(updateRadioButton, addRadioButton, questionInput);
+  const questionSelect = document.createElement("select");
+
+  // UPDATE OR ADD SECTION
+
+  questionSelect.id = "question-select";
+  questionSelect.name = "question";
+  questionSelect.required = true;
+
+  updateRadioButton.addEventListener("change", function (event) {
+    if (updateRadioButton.checked) {
+      // Clear the Select options
+      resetQuestionSelect();
+      // Event listener for the select element
+      questionInput.replaceWith(questionSelect);
+      clearInputs();
+
+      document
+        .getElementById("submit-question")
+        .removeEventListener("click", handleAddQuestion);
+
+      document
+        .getElementById("submit-question")
+        .addEventListener("click", handleUpdateQuestion);
+    }
+  });
+
+  addRadioButton.addEventListener("change", function (event) {
+    if (addRadioButton.checked) {
+      questionSelect.replaceWith(questionInput);
+      clearInputs();
+      document
+        .getElementById("submit-question")
+        .removeEventListener("click", handleUpdateQuestion);
+
+      document
+        .getElementById("submit-question")
+        .addEventListener("click", handleAddQuestion);
+    }
+  });
+
+  // END SECTION
 
   difficultySelector.value = "easy";
   document
@@ -396,10 +437,6 @@ function handleConfigView(event) {
       .setAttribute("forthAnswer", forthAnswerValue);
   });
 
-  const radioButtons = document.querySelectorAll(
-    'input[name="correct-answer"]'
-  );
-
   radioButtons.forEach(function (radioButton) {
     radioButton.addEventListener("change", function (event) {
       radioButtons.forEach(function (rb) {
@@ -420,9 +457,77 @@ function handleConfigView(event) {
       .setAttribute("difficulty", difficultyValue);
   });
 
+  questionSelect.addEventListener("change", function (event) {
+    const selectedOption = questionSelect.options[questionSelect.selectedIndex];
+    const selectedQuestionId = selectedOption.value;
+    // Find the selected question from allTriviaQuestions
+    const selectedQuestion = allTriviaQuestions.find(function (question) {
+      return question.question_id == selectedQuestionId;
+    });
+
+    // Set the values of input fields
+    codeInput.value = selectedQuestion.code;
+    firstAnswerInput.value = selectedQuestion.answers[0];
+    secondAnswerInput.value = selectedQuestion.answers[1];
+    thirdAnswerInput.value = selectedQuestion.answers[2];
+    forthAnswerInput.value = selectedQuestion.answers[3];
+    difficultySelector.value = selectedQuestion.difficulty;
+    correctAnswerValue = selectedQuestion.correctAnswer;
+    radioButtons.forEach(function (radioButton) {
+      if (radioButton.value === correctAnswerValue) {
+        radioButton.checked = true;
+      }
+    });
+    updateValues(selectedQuestion,selectedQuestionId);
+  });
+
   document
     .getElementById("submit-question")
     .addEventListener("click", handleAddQuestion);
+  addRadioButton.checked = true;
+
+  function updateValues(selectedQuestion,selectedQuestionId) {
+    document
+    .getElementById("submit-question")
+    .setAttribute("question_id", selectedQuestionId);
+    document
+      .getElementById("submit-question")
+      .setAttribute("question", selectedQuestion.question);
+    document
+      .getElementById("submit-question")
+      .setAttribute("code", selectedQuestion.code);
+    document
+      .getElementById("submit-question")
+      .setAttribute("firstAnswer", selectedQuestion.answers[0]);
+    document
+      .getElementById("submit-question")
+      .setAttribute("secondAnswer", selectedQuestion.answers[1]);
+    document
+      .getElementById("submit-question")
+      .setAttribute("thirdAnswer", selectedQuestion.answers[2]);
+    document
+      .getElementById("submit-question")
+      .setAttribute("forthAnswer", selectedQuestion.answers[3]);
+    document
+      .getElementById("submit-question")
+      .setAttribute("correctAnswer", selectedQuestion.correctAnswer);
+    document
+      .getElementById("submit-question")
+      .setAttribute("difficulty", selectedQuestion.difficulty);
+    getAllQuestionsFromDB();
+    resetQuestionSelect();
+  }
+  function resetQuestionSelect() {
+    questionSelect.innerHTML = "";
+    // Fill the Select options with question IDs
+    allTriviaQuestions.forEach(function (question) {
+      const option = document.createElement("option");
+      option.value = question.question_id;
+      option.textContent = question.question;
+      questionSelect.appendChild(option);
+    });
+  }
+
 }
 
 function handleAddQuestion(event) {
@@ -487,41 +592,81 @@ function handleAddQuestion(event) {
   }, 5000);
 }
 
-function setAddOrUpdate(updateRadioButton, addRadioButton, questionInput) {
-  const questionSelect = document.createElement("select");
-  questionSelect.id = "question-select";
-  questionSelect.name = "question";
-  questionSelect.required = true;
-  updateRadioButton.addEventListener("change", function (event) {
-    if (updateRadioButton.checked) {
-      // Replace the Question input with the Select input
-      questionInput.replaceWith(questionSelect);
+function handleUpdateQuestion(event) {
+  const resultMsgBox = document.querySelector(".submit-message-box");
+  if (!checkInputs()) {
+    resultMsgBox.textContent = " * Please fill all fields";
+    return;
+  }
 
-      // Clear the Select options
-      questionSelect.innerHTML = "";
+  const questionId = event.target.getAttribute("question_id");
+  const questionValue = event.target.getAttribute("question");
+  const codeValue = event.target.getAttribute("code");
+  const firstAnswerValue = event.target.getAttribute("firstAnswer");
+  const secondAnswerValue = event.target.getAttribute("secondAnswer");
+  const thirdAnswerValue = event.target.getAttribute("thirdAnswer");
+  const forthAnswerValue = event.target.getAttribute("forthAnswer");
+  const correctAnswer = event.target.getAttribute("correctAnswer");
+  const difficultyValue = event.target.getAttribute("difficulty");
 
-      // Fill the Select options with question IDs
-      allTriviaQuestions.forEach(function (question) {
-        console.log(question);
-        const option = document.createElement("option");
-        option.value = question.question_id;
-        option.textContent = question.question_id;
-        questionSelect.appendChild(option);
-      });
+  const questionData = {
+    question: questionValue,
+    code: codeValue,
+    answers: [
+      firstAnswerValue,
+      secondAnswerValue,
+      thirdAnswerValue,
+      forthAnswerValue,
+    ],
+    correctAnswer: correctAnswer,
+    difficulty: difficultyValue,
+  };
+
+  let questionRef = null;
+  database.once("value").then(function (snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      const childData = childSnapshot.val();
+      console.log(childData);
+      if (childData.question_id == questionId) {
+        questionRef = childSnapshot.ref;
+        return true; // Exit the loop if the question is found
+      }
+    });
+
+    console.log(questionRef);
+
+    if (questionRef) {
+      questionRef
+        .update(questionData)
+        .then(() => {
+          console.log("Question updated successfully!");
+          resultMsgBox.style.color = "white";
+          resultMsgBox.textContent =
+            "Question updated successfully in the database.";
+        })
+        .catch((error) => {
+          console.error("Error updating question:", error);
+          resultMsgBox.style.color = "red";
+          resultMsgBox.textContent =
+            "Error updating question in the database, check console for further information.";
+        });
+    } else {
+      resultMsgBox.style.color = "red";
+      resultMsgBox.textContent = "Question not found in the database.";
     }
   });
 
-  addRadioButton.addEventListener("change", function (event) {
-    if (addRadioButton.checked) {
-      // Replace the Select input with a text input
-      questionSelect.replaceWith(questionInput);
-    }
-  });
-
+  setTimeout(function () {
+    clearInputs();
+    resultMsgBox.textContent = "";
+  }, 5000);
 }
 
 function checkInputs() {
-  const questionInput = document.getElementById("question").value;
+  const questionInput =
+    document.getElementById("question") == null
+      ? document.getElementById("question-select").value
+      : document.getElementById("question").value;
   const codeInput = document.getElementById("code-snippet").value;
   const firstAnswerInput = document.getElementById("answer1").value;
   const secondAnswerInput = document.getElementById("answer2").value;
@@ -545,7 +690,10 @@ function checkInputs() {
 }
 
 function clearInputs() {
-  const questionInput = (document.getElementById("question").value = "");
+  const questionInput =
+    document.getElementById("question") == null
+      ? (document.getElementById("question-select").value = "")
+      : (document.getElementById("question").value = "");
   const codeInput = (document.getElementById("code-snippet").value = "");
   const firstAnswerInput = (document.getElementById("answer1").value = "");
   const secondAnswerInput = (document.getElementById("answer2").value = "");

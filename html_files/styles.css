@@ -315,7 +315,6 @@ span#question-text {
 .form-container .radio-container {
   display: flex;
   flex-direction: row;
-  justify-content: center;
   align-items: center;
   margin-bottom: 10px;
 }
@@ -508,3 +507,16 @@ select#choose-difficulty > option {
   pointer-events: none;
 }
 
+.question-dropdown {
+  display: none;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.question-dropdown div {
+  padding: 5px;
+  cursor: pointer;
+}
