@@ -20,8 +20,11 @@ h1 {
 }
 div#main {
   background-color: #e8e2e2;
-  width: 1250px;
-  height: 550px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   border: none;
   border-radius: 5px;
   padding: 20px;
